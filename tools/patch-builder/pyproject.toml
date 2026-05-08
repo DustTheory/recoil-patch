@@ -1,0 +1,8 @@
+[project]
+name = "patch-builder"
+version = "0.1.0"
+description = "Builds the patch, silly"
+requires-python = ">=3.10"
+dependencies = [
+    "lief>=0.17.6",
+]

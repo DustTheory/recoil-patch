@@ -1,0 +1,9 @@
+build/
+log/
+
+.env
+.mcp.json
+.claude
+
+__pycache__
+.venv
