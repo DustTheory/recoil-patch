@@ -19,7 +19,6 @@ Goal:
 * Noclip cheat
 
 Broken:
-* HUD background alignment on resolutions larger than 1024x768
 * Software renderer does not work resolutions larger than 1024x768
 
 ## Build instructions:
