@@ -172,6 +172,11 @@ void zeroMenuOffsetsAndCallA6840(void)
 }
 
 static const ImageOverrideEntry OVERRIDE_TABLE[] = {
+    {"topstrip", 1280, "tops1280.bin"},
+    {"topstrip", 1600, "tops1600.bin"},
+    {"topstrip", 1920, "tops1920.bin"},
+    {"topstrip", 2560, "tops2560.bin"},
+    {"topstrip", 3840, "tops3840.bin"},
     {"iconback", 1280, "iback1280.bin"},
     {"iconback", 1600, "iback1600.bin"},
     {"iconback", 1920, "iback1920.bin"},
