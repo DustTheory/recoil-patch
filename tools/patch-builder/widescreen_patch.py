@@ -1,4 +1,5 @@
 import ctypes
+import struct
 
 import lief
 
@@ -50,11 +51,14 @@ CALL_REL32_PATCHES = {
     0x004B9911: "zeroMenuOffsetsAndCallA6840",
 }
 
-def patchResolutionMenu(binary):
+LOAD_IMAGE_ITHINK_VA = 0x0046dd30
+
+def applyWidescreenPatch(binary):
     symbols = addPatchCodeSection(binary)
     addPatchResourcesSection(binary, symbols)
     patchFunctionEntries(binary, symbols)
     patchCallSites(binary, symbols)
+    patchImageOverride(binary, symbols)
 
 def patchFunctionEntries(binary, patchCodeSymbols):
     for source_addr, name in FUNCTION_ENTRY_HOOKS.items():
@@ -71,6 +75,32 @@ def patchCallSites(binary, patchCodeSymbols):
         rel32 = (target_addr - (call_addr + 5)) & 0xFFFFFFFF
         print(f"  patch CALL at {call_addr:#x} -> {target_addr:#x} ({name})")
         binary.patch_address(call_addr + 1, list(rel32.to_bytes(4, "little")))
+
+def patchImageOverride(binary, symbols):
+    target = symbols["loadImageOverride"]
+    patched = 0
+
+    base = binary.optional_header.imagebase
+    text = next(s for s in binary.sections if s.name == ".text")
+    data = bytearray(text.content)
+    text_va = base + text.virtual_address
+
+    for i in range(len(data) - 4):
+        if data[i] != 0xE8:
+            continue
+        rel32 = struct.unpack_from("<i", data, i + 1)[0]
+        call_target = (text_va + i + 5 + rel32) & 0xFFFFFFFF
+        if call_target != LOAD_IMAGE_ITHINK_VA:
+            continue
+        new_rel32 = (target - (text_va + i + 5)) & 0xFFFFFFFF
+        binary.patch_address(text_va + i + 1, list(struct.pack("<I", new_rel32)))
+        print(f"  patched loadImage call at {text_va + i:#x} -> loadImageOverride ({target:#x})")
+        patched += 1
+
+    if patched == 0:
+        print("  WARNING: no loadImage call sites found")
+    else:
+        print(f"  patched {patched} call site(s)")
 
 # Adds a new code section and link patch.c code
 def addPatchCodeSection(binary):

@@ -170,3 +170,68 @@ void zeroMenuOffsetsAndCallA6840(void)
         :
         : "i"(FUN_004a6840));
 }
+
+static const ImageOverrideEntry OVERRIDE_TABLE[] = {
+    {"topstrip", 1280, "tops1280.bin"},
+    {"topstrip", 1600, "tops1600.bin"},
+    {"topstrip", 1920, "tops1920.bin"},
+    {"topstrip", 2560, "tops2560.bin"},
+    {"topstrip", 3840, "tops3840.bin"},
+    {"iconback", 1280, "iback1280.bin"},
+    {"iconback", 1600, "iback1600.bin"},
+    {"iconback", 1920, "iback1920.bin"},
+    {"iconback", 2560, "iback2560.bin"},
+    {"iconback", 3840, "iback3840.bin"},
+};
+
+#define OVERRIDE_TABLE_LEN (sizeof(OVERRIDE_TABLE) / sizeof(OVERRIDE_TABLE[0]))
+
+// Overrides loadImage function from original binary to insert our own patched images
+void *__fastcall loadImageOverride(const char *name)
+{
+
+    const ImageOverrideEntry *entry = 0;
+    for (int i = 0; i < (int)OVERRIDE_TABLE_LEN; i++)
+    {
+        if (streq(OVERRIDE_TABLE[i].name, name) && OVERRIDE_TABLE[i].width == RENDER_WIDTH_GLOBAL)
+        {
+            entry = &OVERRIDE_TABLE[i];
+            break;
+        }
+    }
+    if (!entry)
+    {
+        return loadImage(name);
+    }
+
+    char path[512];
+    char cwd[256];
+    recoil_GetCurrentDirectoryA(sizeof(cwd), cwd);
+    recoil_sprintf(path, "%s\\patch-assets\\%s", cwd, entry->file);
+
+    void *fp = recoil_fopen(path, "rb");
+    if (!fp)
+    {
+        return loadImage(name);
+    }
+
+    void *image = FUN_0046ef70(fp);
+    recoil_fclose(fp);
+
+    if (!image)
+    {
+        return loadImage(name);
+    }
+
+    return image;
+}
+
+static int streq(const char *a, const char *b)
+{
+    while (*a && *a == *b)
+    {
+        a++;
+        b++;
+    }
+    return *a == *b;
+}

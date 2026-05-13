@@ -5,6 +5,7 @@
 const char EMULJETINA_SIGNATURE[] = "Patched by Emuljetina";
 
 const ResolutionOption NEW_RESOLUTIONS[COUNT_NUM_RESOLUTIONS] = {
+    {"1280x720", MENU_ITEM_ID_1280x720},
     {"1280x800", MENU_ITEM_ID_1280x800},
     {"1600x900", MENU_ITEM_ID_1600x900},
     {"1920x1080", MENU_ITEM_ID_1920x1080},

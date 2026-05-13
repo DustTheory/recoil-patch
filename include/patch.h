@@ -32,6 +32,10 @@ extern void __fastcall FUN_00408620(int dispW, int dispH) asm("FUN_00408620");
 extern void __fastcall FUN_00408680(int) asm("FUN_00408680");
 extern void __fastcall FUN_00408300(int doubleScan) asm("FUN_00408300");
 
+// Image loader functions from the original binary
+extern void *__fastcall loadImage(const char *name) asm("FUN_0046dd30");
+extern void *__fastcall FUN_0046ef70(void *fp) asm("FUN_0046ef70");
+
 // Globals from the original binary referenced in patch
 #define RESOLUTION_IDENTIFIER_GLOBAL DAT_004e5d30
 extern ResolutionOptionIdentifier *DAT_004e5d30;
@@ -56,6 +60,13 @@ extern int DAT_00632150;
 typedef void(__thiscall *CCmdUI_Enable)(void *self, int bEnable);  // CCmdUI::Enable
 typedef void(__thiscall *CCmdUI_SetCheck)(void *self, int nCheck); // CCmdUI::SetCheck
 
+// patch.c does not have it's own imports so we utilize the already imported DLL functions
+#define RECOIL_DLL_CALL(fn_type, va, ...) ((fn_type)(*(void **)(va)))(__VA_ARGS__)
+#define recoil_fopen(p, m) RECOIL_DLL_CALL(void *(*)(const char *, const char *), 0x4cc5b8, p, m)
+#define recoil_fclose(fp) RECOIL_DLL_CALL(int (*)(void *), 0x4cc5c0, fp)
+#define recoil_sprintf(b, f, ...) RECOIL_DLL_CALL(int (*)(char *, const char *, ...), 0x4cc5c4, b, f, __VA_ARGS__)
+#define recoil_GetCurrentDirectoryA(n, b) RECOIL_DLL_CALL(int (*)(int, char *), 0x4cc12c, n, b)
+
 // ****************** MY OWN HELPERS ******************
 
 typedef struct
@@ -63,8 +74,19 @@ typedef struct
     int width, height, displayWidth, displayHeight, doubleScan, bpp;
 } ResolutionParams;
 
+typedef struct
+{
+    const char *name;
+    int width;
+    const char *file;
+} ImageOverrideEntry;
+
 void __fastcall setVideoModeParams(int resolutionIdentifier) asm("setVideoModeParams");
 
 __attribute__((naked)) void zeroMenuOffsetsAndCallA6840(void) asm("zeroMenuOffsetsAndCallA6840");
+
+void *__fastcall loadImageOverride(const char *name) asm("loadImageOverride");
+
+static int streq(const char *a, const char *b);
 
 #endif // RECOIL_PATCH_H

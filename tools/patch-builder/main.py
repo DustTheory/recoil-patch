@@ -3,7 +3,7 @@ import sys
 import lief
 
 from kernel32_patch import patchKernel32
-from menu_patch import patchResolutionMenu
+from widescreen_patch import applyWidescreenPatch
 
 def main():
     if len(sys.argv) != 3:
@@ -20,7 +20,7 @@ def main():
 
     print(f"Successfully parsed the binary: {binary_path}")
 
-    patchResolutionMenu(binary)
+    applyWidescreenPatch(binary)
     patchKernel32(binary)
 
     builder_config = lief.PE.Builder.config_t()

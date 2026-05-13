@@ -34,8 +34,15 @@ cp $SYSTEM32_DIR/user32.dll $RECOIL_DIR/real_user32.dll
 cp ../build/user32.dll $RECOIL_DIR/user32.dll
 cp ../build/patchk32.dll $RECOIL_DIR/patchk32.dll
 
-# Build patched binary
+# Convert patch images and copy to game patch-assets directory
+mkdir -p $RECOIL_DIR/patch-assets
 cd ../tools/patch-builder
+for png in ../../assets/*.png; do
+    bin="$RECOIL_DIR/patch-assets/$(basename "${png%.png}.bin")"
+    uv run image_convert.py "$png" "$bin"
+done
+
+# Build patched binary
 # uv run main.py ../../build/Recoil_original.exe ../../build/Recoil.exe
 uv run main.py ../../build/Recoil_original.dat ../../build/RECOIL.dat
 
