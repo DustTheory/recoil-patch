@@ -51,7 +51,7 @@ CALL_REL32_PATCHES = {
     0x004B9911: "zeroMenuOffsetsAndCallA6840",
 }
 
-LOAD_IMAGE_ITHINK_VA = 0x0046dd30
+LOAD_IMAGE_VA = 0x0046dd30
 
 def applyWidescreenPatch(binary):
     symbols = addPatchCodeSection(binary)
@@ -90,7 +90,7 @@ def patchImageOverride(binary, symbols):
             continue
         rel32 = struct.unpack_from("<i", data, i + 1)[0]
         call_target = (text_va + i + 5 + rel32) & 0xFFFFFFFF
-        if call_target != LOAD_IMAGE_ITHINK_VA:
+        if call_target != LOAD_IMAGE_VA:
             continue
         new_rel32 = (target - (text_va + i + 5)) & 0xFFFFFFFF
         binary.patch_address(text_va + i + 1, list(struct.pack("<I", new_rel32)))

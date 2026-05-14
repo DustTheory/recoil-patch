@@ -3,6 +3,7 @@ import sys
 import lief
 
 from kernel32_patch import patchKernel32
+from nocd_patch import applyNoCdPatch
 from widescreen_patch import applyWidescreenPatch
 
 def main():
@@ -21,6 +22,7 @@ def main():
     print(f"Successfully parsed the binary: {binary_path}")
 
     applyWidescreenPatch(binary)
+    applyNoCdPatch(binary)
     patchKernel32(binary)
 
     builder_config = lief.PE.Builder.config_t()
