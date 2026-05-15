@@ -59,6 +59,16 @@ def applyWidescreenPatch(binary):
     patchFunctionEntries(binary, symbols)
     patchCallSites(binary, symbols)
     patchImageOverride(binary, symbols)
+    redirectUser32Import(binary)
+
+def redirectUser32Import(binary):
+    imp = next((i for i in binary.imports if i.name.lower() == "user32.dll"), None)
+    if imp is None:
+        print("  WARNING: user32.dll import not found")
+        return
+    original = imp.name
+    imp.name = "pusr32.dll"
+    print(f"  redirected import: {original} -> pusr32.dll")
 
 def patchFunctionEntries(binary, patchCodeSymbols):
     for source_addr, name in FUNCTION_ENTRY_HOOKS.items():
